@@ -72,32 +72,38 @@ class FollowerInfoViewController: UIViewController {
         ])
     }
     
+    // download user info from GitHub:
     func addUserInfo() {
         NetworkManager.shared.getFollowerInfo(for: username) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let user):
-                DispatchQueue.main.async { self.addInfoOf(user) }
+                DispatchQueue.main.async {
+                    self.downloadHeaderAvatarImageOf(user)
+                    self.addInfoOf(user)
+                }
             case .failure(let error):
                 self.presentGHFAlertOnMainThread(title: "Something went wrong", message: error.rawValue, buttonText: "OK")
             }
         }
     }
+    func downloadHeaderAvatarImageOf(_ user: User) {
+        NetworkManager.shared.downloadImage(from: user.avatar_url) { [weak self] image in
+            guard let self = self else { return }
+            DispatchQueue.main.async { self.headerAvatarImageView.image = image }
+        }
+    }
+    // put downloaded user info to use:
     func addInfoOf(_ user: User) {
+        // 1/3 header:
         configureHeaderWithInfoOf(user)
+        // 2/3 two cards:
         self.add(childVC: GHFRepoCardVC(user: user, delegate: self), to: self.card1View)
         self.add(childVC: GHFFollowerCardVC(user: user, delegate: self), to: self.card2View)
+        // 3/3 date label:
         self.dateLabel.text = "GitHub since \(user.created_at.convertToMonthYearFormat())"
     }
-    func add(childVC: UIViewController, to containerView: UIView) {
-        addChild(childVC)
-        containerView.addSubview(childVC.view)
-        childVC.view.frame = containerView.bounds
-        childVC.didMove(toParent: self)
-    }
-    
     func configureHeaderWithInfoOf(_ user: User) {
-        downloadHeaderAvatarImageOf(user)
         headerUsernameLabel.text = user.login
         headerNameLabel.text = user.name ?? ""
         headerLocationImageView.image = SFSymbols.location
@@ -106,13 +112,13 @@ class FollowerInfoViewController: UIViewController {
         headerBioLabel.text = user.bio ?? ""
         headerBioLabel.numberOfLines = 0
     }
-    func downloadHeaderAvatarImageOf(_ user: User) {
-        NetworkManager.shared.downloadImage(from: user.avatar_url) { [weak self] image in
-            guard let self = self else { return }
-            DispatchQueue.main.async { self.headerAvatarImageView.image = image }
-        }
+    func add(childVC: UIViewController, to containerView: UIView) {
+        addChild(childVC)
+        containerView.addSubview(childVC.view)
+        childVC.view.frame = containerView.bounds
+        childVC.didMove(toParent: self)
     }
-    
+    // layout all (header, two cards, date label):
     func layout() {
         let padding: CGFloat = 20
         let cardHeight: CGFloat = 140
