@@ -15,7 +15,7 @@ class FollowersViewController: GHFStatesVC {
     }
     
     var username: String!
-    var followers: [Follower ] = []
+    var followers: [Follower] = []
     var followersSearched: [Follower] = []
     var page = 1
     var hasMoreFollowers = true
@@ -161,7 +161,6 @@ extension FollowersViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let followers = isSearching ? followersSearched : self.followers
         let follower = followers[indexPath.item]
-        
         let followerInfoVC = FollowerInfoViewController()
         followerInfoVC.username = follower.login
         followerInfoVC.delegate = self

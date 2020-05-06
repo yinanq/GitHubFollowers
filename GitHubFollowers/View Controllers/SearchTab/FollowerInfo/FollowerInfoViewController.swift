@@ -13,33 +13,52 @@ protocol FollowerInfoVCDelegate: class {
 }
 
 class FollowerInfoViewController: UIViewController {
-    
+    // scroll view:
     let scrollView = UIScrollView()
     let contentView = UIView()
-    
-    let headerView = UIView()
+    // header (directly in view for dynamic height layout):
+    let headerAvatarImageView = GHFAvatarImageView(frame: .zero)
+    let headerUsernameLabel = GHFTitleLabel(textAlignment: .left, fontSize: 34)
+    let headerNameLabel = GHFSubtitleLabel(fontSize: 18)
+    let headerLocationImageView = UIImageView()
+    let headerLocationLabel = GHFSubtitleLabel(fontSize: 18)
+    let headerBioLabel = GHFBodyLabel(textAlignment: .left)
+    // info cards in container views:
     let card1View = UIView()
     let card2View = UIView()
+    // date label in container view:
     let dateLabel = GHFBodyLabel(textAlignment: .center)
-    
-    var containerViews: [UIView] = []
     
     var username: String!
     
-    weak var delegate: FollowerInfoVCDelegate!
+    weak var delegate: FollowerInfoVCDelegate!    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureVC()
         configureScrollView()
-        addContainerViews()
         addUserInfo()
+        contentView.addSubviews(
+            headerAvatarImageView,
+            headerUsernameLabel,
+            headerNameLabel,
+            headerLocationImageView,
+            headerLocationLabel,
+            headerBioLabel,
+            card1View,
+            card2View,
+            dateLabel
+        )
+        layout()
     }
     
     func configureVC() {
         view.backgroundColor = .systemBackground
         let doneBtn = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissVC))
         navigationItem.rightBarButtonItem = doneBtn
+    }
+    @objc func dismissVC() {
+        dismiss(animated: true)
     }
     
     func configureScrollView() {
@@ -58,44 +77,18 @@ class FollowerInfoViewController: UIViewController {
             guard let self = self else { return }
             switch result {
             case .success(let user):
-                DispatchQueue.main.async { self.add(user) }
+                DispatchQueue.main.async { self.addInfoOf(user) }
             case .failure(let error):
                 self.presentGHFAlertOnMainThread(title: "Something went wrong", message: error.rawValue, buttonText: "OK")
             }
         }
     }
-    
-    func add(_ user : User) {
+    func addInfoOf(_ user: User) {
+        configureHeaderWithInfoOf(user)
         self.add(childVC: GHFRepoCardVC(user: user, delegate: self), to: self.card1View)
         self.add(childVC: GHFFollowerCardVC(user: user, delegate: self), to: self.card2View)
-        self.add(childVC: GHFFollowerInfoHeaderViewController(user: user), to: self.headerView)
         self.dateLabel.text = "GitHub since \(user.created_at.convertToMonthYearFormat())"
     }
-    
-    func addContainerViews() {
-        containerViews = [headerView, card1View, card2View, dateLabel]
-        let padding: CGFloat = 20
-        for containerView in containerViews {
-            contentView.addSubview(containerView)
-            containerView.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
-                containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
-            ])
-        }
-        let cardHeight: CGFloat = 140
-        NSLayoutConstraint.activate([
-            headerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            headerView.heightAnchor.constraint(equalToConstant: 210),
-            card1View.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: padding),
-            card1View.heightAnchor.constraint(equalToConstant: cardHeight),
-            card2View.topAnchor.constraint(equalTo: card1View.bottomAnchor, constant: padding),
-            card2View.heightAnchor.constraint(equalToConstant: cardHeight),
-            dateLabel.topAnchor.constraint(equalTo: card2View.bottomAnchor, constant: padding),
-            dateLabel.heightAnchor.constraint(equalToConstant: 50)
-        ])
-    }
-    
     func add(childVC: UIViewController, to containerView: UIView) {
         addChild(childVC)
         containerView.addSubview(childVC.view)
@@ -103,8 +96,68 @@ class FollowerInfoViewController: UIViewController {
         childVC.didMove(toParent: self)
     }
     
-    @objc func dismissVC() {
-        dismiss(animated: true)
+    func configureHeaderWithInfoOf(_ user: User) {
+        downloadHeaderAvatarImageOf(user)
+        headerUsernameLabel.text = user.login
+        headerNameLabel.text = user.name ?? ""
+        headerLocationImageView.image = SFSymbols.location
+        headerLocationImageView.tintColor = .secondaryLabel
+        headerLocationLabel.text = user.location ?? "no location info"
+        headerBioLabel.text = user.bio ?? ""
+        headerBioLabel.numberOfLines = 0
+    }
+    func downloadHeaderAvatarImageOf(_ user: User) {
+        NetworkManager.shared.downloadImage(from: user.avatar_url) { [weak self] image in
+            guard let self = self else { return }
+            DispatchQueue.main.async { self.headerAvatarImageView.image = image }
+        }
+    }
+    
+    func layout() {
+        let padding: CGFloat = 20
+        let cardHeight: CGFloat = 140
+        headerLocationImageView.translatesAutoresizingMaskIntoConstraints = false
+        card1View.translatesAutoresizingMaskIntoConstraints = false
+        card2View.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            headerAvatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            headerAvatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
+            headerAvatarImageView.widthAnchor.constraint(equalToConstant: 90),
+            headerAvatarImageView.heightAnchor.constraint(equalToConstant: 90),
+            headerUsernameLabel.topAnchor.constraint(equalTo: headerAvatarImageView.topAnchor),
+            headerUsernameLabel.leadingAnchor.constraint(equalTo: headerAvatarImageView.trailingAnchor, constant: 12),
+            headerUsernameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
+            headerUsernameLabel.heightAnchor.constraint(equalToConstant: 38),
+            headerNameLabel.centerYAnchor.constraint(equalTo: headerAvatarImageView.centerYAnchor, constant: 8),
+            headerNameLabel.leadingAnchor.constraint(equalTo: headerUsernameLabel.leadingAnchor),
+            headerNameLabel.trailingAnchor.constraint(equalTo: headerUsernameLabel.trailingAnchor, constant: -padding),
+            headerNameLabel.heightAnchor.constraint(equalToConstant: 20),
+            headerLocationImageView.bottomAnchor.constraint(equalTo: headerAvatarImageView.bottomAnchor),
+            headerLocationImageView.leadingAnchor.constraint(equalTo: headerUsernameLabel.leadingAnchor),
+            headerLocationImageView.widthAnchor.constraint(equalToConstant: 20),
+            headerLocationImageView.heightAnchor.constraint(equalToConstant: 20),
+            headerLocationLabel.centerYAnchor.constraint(equalTo: headerLocationImageView.centerYAnchor),
+            headerLocationLabel.leadingAnchor.constraint(equalTo: headerLocationImageView.trailingAnchor, constant: 5),
+            headerLocationLabel.trailingAnchor.constraint(equalTo: headerUsernameLabel.trailingAnchor),
+            headerLocationLabel.heightAnchor.constraint(equalToConstant: 20),
+            headerBioLabel.topAnchor.constraint(equalTo: headerAvatarImageView.bottomAnchor, constant: 8),
+            headerBioLabel.leadingAnchor.constraint(equalTo: headerAvatarImageView.leadingAnchor),
+            headerBioLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
+            headerBioLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 0),
+            card1View.topAnchor.constraint(equalTo: headerBioLabel.bottomAnchor, constant: padding),
+            card1View.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
+            card1View.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
+            card1View.heightAnchor.constraint(equalToConstant: cardHeight),
+            card2View.topAnchor.constraint(equalTo: card1View.bottomAnchor, constant: padding),
+            card2View.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
+            card2View.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
+            card2View.heightAnchor.constraint(equalToConstant: cardHeight),
+            dateLabel.topAnchor.constraint(equalTo: card2View.bottomAnchor, constant: padding),
+            dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
+            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
+            dateLabel.heightAnchor.constraint(equalToConstant: 50)
+        ])
     }
     
 }
