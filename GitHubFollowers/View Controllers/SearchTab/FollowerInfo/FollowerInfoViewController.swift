@@ -121,15 +121,16 @@ class FollowerInfoViewController: UIViewController {
         card2View.translatesAutoresizingMaskIntoConstraints = false
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            headerAvatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            headerAvatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: padding),
             headerAvatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
             headerAvatarImageView.widthAnchor.constraint(equalToConstant: 90),
             headerAvatarImageView.heightAnchor.constraint(equalToConstant: 90),
-            headerUsernameLabel.topAnchor.constraint(equalTo: headerAvatarImageView.topAnchor),
-            headerUsernameLabel.leadingAnchor.constraint(equalTo: headerAvatarImageView.trailingAnchor, constant: 12),
+            
+            headerUsernameLabel.topAnchor.constraint(equalTo: headerAvatarImageView.topAnchor, constant: -5),
+            headerUsernameLabel.leadingAnchor.constraint(equalTo: headerAvatarImageView.trailingAnchor, constant: 15),
             headerUsernameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
             headerUsernameLabel.heightAnchor.constraint(equalToConstant: 38),
-            headerNameLabel.centerYAnchor.constraint(equalTo: headerAvatarImageView.centerYAnchor, constant: 8),
+            headerNameLabel.centerYAnchor.constraint(equalTo: headerAvatarImageView.centerYAnchor, constant: 5),
             headerNameLabel.leadingAnchor.constraint(equalTo: headerUsernameLabel.leadingAnchor),
             headerNameLabel.trailingAnchor.constraint(equalTo: headerUsernameLabel.trailingAnchor, constant: -padding),
             headerNameLabel.heightAnchor.constraint(equalToConstant: 20),
@@ -141,11 +142,13 @@ class FollowerInfoViewController: UIViewController {
             headerLocationLabel.leadingAnchor.constraint(equalTo: headerLocationImageView.trailingAnchor, constant: 5),
             headerLocationLabel.trailingAnchor.constraint(equalTo: headerUsernameLabel.trailingAnchor),
             headerLocationLabel.heightAnchor.constraint(equalToConstant: 20),
-            headerBioLabel.topAnchor.constraint(equalTo: headerAvatarImageView.bottomAnchor, constant: 8),
+            
+            headerBioLabel.topAnchor.constraint(equalTo: headerAvatarImageView.bottomAnchor, constant: 10),
             headerBioLabel.leadingAnchor.constraint(equalTo: headerAvatarImageView.leadingAnchor),
             headerBioLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
             headerBioLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 0),
-            card1View.topAnchor.constraint(equalTo: headerBioLabel.bottomAnchor, constant: padding),
+            
+            card1View.topAnchor.constraint(equalTo: headerBioLabel.bottomAnchor, constant: padding*2),
             card1View.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
             card1View.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
             card1View.heightAnchor.constraint(equalToConstant: cardHeight),
