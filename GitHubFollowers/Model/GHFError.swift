@@ -8,14 +8,6 @@
 
 import Foundation
 
-//enum ErrorMessage: String {
-//    case usernameInvalid = "This username is not found. Please try again."
-//    case unableToComplete = "Unable to complete your request. Please check your internet connection."
-//    case responseInvalid = "Response from the server was invalid. Please try again."
-//    case dataInvalid = "Data from the server was invalid. Please try again."
-//    case dataCannotDecode = "Data from the server cannot be decoded. Please try again."
-//}
-
 enum GHFError: String, Error {
     case usernameInvalid = "This username is not found. Please try again."
     case unableToComplete = "Unable to complete your request. Please check your internet connection."

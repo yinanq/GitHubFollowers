@@ -18,14 +18,12 @@ class GHFTabBarController: UITabBarController {
     
     func createSearchNavController() -> UINavigationController {
         let searchViewController = SearchViewController()
-        searchViewController.title = "Search"
         searchViewController.tabBarItem = UITabBarItem(tabBarSystemItem: .search, tag: 0)
         return UINavigationController(rootViewController: searchViewController)
     }
     
     func createFavoritesNavController() -> UINavigationController {
         let favoritesViewController = FavoritesViewController()
-        favoritesViewController.title = "Favorites"
         favoritesViewController.tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 1)
         return UINavigationController(rootViewController: favoritesViewController)
     }
