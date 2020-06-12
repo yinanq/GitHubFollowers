@@ -19,9 +19,7 @@ class FavCell: UITableViewCell {
         addSubviews()
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
     private func addSubviews() {
         addSubviews(avatarImageView, usernameLabel)
